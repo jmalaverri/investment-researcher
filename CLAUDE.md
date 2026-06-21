@@ -40,7 +40,7 @@ Implement ONLY what the current step asks. Do not pre-build adapters or the LLM 
 After writing code, the code-reviewer subagent reviews before commit.
 
 ## Decisions (ADR-lite)
-- LLM port deferred to the Ollama step; do not define it in the contract.
+- LLM *interface* deferred to the Ollama step: do not define an LLM port, client, or prompt logic in the contract. The `interpretation: str | None = None` output slot on FundamentalReport is intentional and allowed — it stays None through the deterministic spine.
 - `Concentration.hhi`: standard 0–10,000 HHI on percent weights (not normalized 0–1).
 - `expense_ratio_pct`: percent convention (VOO ≈ 0.03). No magic upper bound; guard via an adapter unit test.
 - `FundDataSource` is synchronous; parallelism, if ever needed, lives in the orchestrator.
