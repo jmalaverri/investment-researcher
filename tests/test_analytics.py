@@ -11,7 +11,6 @@ from investment_researcher.analytics import (
 # ---------------------------------------------------------------------------
 
 
-
 class TestComputeConcentration:
     def test_fixture_a(self):
         weights = [40.0, 30.0, 20.0, 10.0]
