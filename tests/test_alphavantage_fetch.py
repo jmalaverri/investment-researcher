@@ -47,6 +47,26 @@ def test_error_message():
         adapter.fetch("VOO")
 
 
+def test_partial_payload_missing_expense_ratio():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"holdings": []})
+
+    adapter = _adapter(handler)
+
+    with pytest.raises(FundDataUnavailable):
+        adapter.fetch("VOO")
+
+
+def test_partial_payload_missing_holdings():
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"net_expense_ratio": "0.0003"})
+
+    adapter = _adapter(handler)
+
+    with pytest.raises(FundDataUnavailable):
+        adapter.fetch("VOO")
+
+
 def test_unknown_ticker():
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, json={})

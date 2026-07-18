@@ -64,8 +64,9 @@ class AlphaVantageFundData:
         """Return fund data for *ticker* via Alpha Vantage's ETF_PROFILE endpoint.
 
         Raises TickerNotFound if the ticker is unknown. Raises FundDataUnavailable
-        for transport errors, non-2xx responses, invalid JSON, or Alpha Vantage's
-        throttle/advisory/error envelopes (all returned with HTTP 200).
+        for transport errors, non-2xx responses, invalid JSON, Alpha Vantage's
+        throttle/advisory/error envelopes (all returned with HTTP 200), or a
+        partial body missing exactly one of "holdings"/"net_expense_ratio".
         """
         params = {
             "function": "ETF_PROFILE",
@@ -88,7 +89,13 @@ class AlphaVantageFundData:
         if any(key in body for key in _ADVISORY_KEYS):
             raise FundDataUnavailable(f"provider advisory for {ticker}: {body}")
 
-        if "holdings" not in body and "net_expense_ratio" not in body:
-            raise TickerNotFound(ticker)
+        has_holdings = "holdings" in body
+        has_expense = "net_expense_ratio" in body
+        if not has_holdings and not has_expense:
+            raise TickerNotFound(ticker)  # empty response → unknown symbol
+        if not (has_holdings and has_expense):
+            raise FundDataUnavailable(
+                f"partial response for {ticker}: {body}"
+            )  # partial payload → untrustworthy
 
         return parse_etf_profile(body, ticker)
