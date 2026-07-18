@@ -1,4 +1,14 @@
+import os
+
+import httpx
+
 from investment_researcher.domain.models import FundData, Holding
+from investment_researcher.errors import FundDataUnavailable, TickerNotFound
+
+_BASE_URL = "https://www.alphavantage.co/query"
+_DEFAULT_TIMEOUT = 10.0
+
+_ADVISORY_KEYS = ("Information", "Note", "Error Message")
 
 
 def parse_etf_profile(raw: dict, ticker: str) -> FundData:
@@ -37,3 +47,48 @@ def parse_etf_profile(raw: dict, ticker: str) -> FundData:
         expense_ratio_pct=float(raw["net_expense_ratio"]) * 100,
         holdings=holdings,
     )
+
+
+class AlphaVantageFundData:
+    """FundDataSource adapter backed by the Alpha Vantage ETF_PROFILE endpoint."""
+
+    def __init__(self, api_key: str, client: httpx.Client | None = None) -> None:
+        self._api_key = api_key
+        self._client = client or httpx.Client(timeout=_DEFAULT_TIMEOUT)
+
+    @classmethod
+    def from_env(cls) -> "AlphaVantageFundData":
+        return cls(api_key=os.environ["FUND_API_KEY"])
+
+    def fetch(self, ticker: str) -> FundData:
+        """Return fund data for *ticker* via Alpha Vantage's ETF_PROFILE endpoint.
+
+        Raises TickerNotFound if the ticker is unknown. Raises FundDataUnavailable
+        for transport errors, non-2xx responses, invalid JSON, or Alpha Vantage's
+        throttle/advisory/error envelopes (all returned with HTTP 200).
+        """
+        params = {
+            "function": "ETF_PROFILE",
+            "symbol": ticker,
+            "apikey": self._api_key,
+        }
+        try:
+            response = self._client.get(_BASE_URL, params=params)
+        except httpx.RequestError as exc:
+            raise FundDataUnavailable(f"request failed for {ticker}") from exc
+
+        if not response.is_success:
+            raise FundDataUnavailable(f"HTTP {response.status_code} for {ticker}")
+
+        try:
+            body = response.json()
+        except ValueError as exc:
+            raise FundDataUnavailable(f"invalid JSON for {ticker}") from exc
+
+        if any(key in body for key in _ADVISORY_KEYS):
+            raise FundDataUnavailable(f"provider advisory for {ticker}: {body}")
+
+        if "holdings" not in body and "net_expense_ratio" not in body:
+            raise TickerNotFound(ticker)
+
+        return parse_etf_profile(body, ticker)

@@ -14,6 +14,8 @@ class FundDataSource(Protocol):
     def fetch(self, ticker: str) -> FundData:
         """Return fund data for *ticker* given as a plain symbol (e.g. 'VOO').
 
-        Failure semantics (e.g. unknown ticker) are defined at the adapter step.
+        Raises TickerNotFound if the ticker is unknown, and FundDataUnavailable
+        for transient failures (network errors, rate limits, provider errors).
+        See investment_researcher.errors.
         """
         ...
