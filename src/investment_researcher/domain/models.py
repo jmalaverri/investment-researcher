@@ -16,7 +16,9 @@ class FundData(BaseModel):
     """Returned by a FundDataSource adapter — a trust boundary, so validate here."""
 
     ticker: str
-    name: str
+    name: str | None = Field(
+        default=None, description="Fund name; None when the source omits it"
+    )
     expense_ratio_pct: float = Field(
         ge=0,
         description="Annual expense ratio as a percent. VOO ≈ 0.03 (meaning 0.03%, not 3%).",
