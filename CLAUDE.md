@@ -44,6 +44,7 @@ After writing code, the code-reviewer subagent reviews before commit.
 - `Concentration.hhi`: standard 0–10,000 HHI on percent weights (not normalized 0–1).
 - `expense_ratio_pct`: percent convention (VOO ≈ 0.03). No magic upper bound; guard via an adapter unit test.
 - `FundDataSource` is synchronous; parallelism, if ever needed, lives in the orchestrator.
+- No automatic retry in v0: the dominant failure (25/day rate limit) isn't retryable; caching is the mitigation. Revisit if transient network errors become common.
 
 ## Formatting
 - Formatting/imports/lint are owned by Ruff (`uv run ruff check --fix . && uv run ruff format .`). Reviewers should not flag what Ruff auto-fixes.
