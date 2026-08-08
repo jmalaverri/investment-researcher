@@ -7,7 +7,7 @@ def compute_concentration(weights: list[float]) -> Concentration:
     """Return concentration metrics for a list of weight_pct values (0–100 each).
 
     Raises ValueError if weights is empty, any weight is outside [0, 100], or
-    the sum of weights exceeds 100 (allowing 1e-4 tolerance for rounding).
+    the sum of weights exceeds 105.0.
     top_10_weight_pct: sum of the largest 10 weights (or all, if fewer than 10).
     hhi: sum of squared weights on the 0–100 scale (range 0–10,000).
     """
@@ -15,9 +15,11 @@ def compute_concentration(weights: list[float]) -> Concentration:
         raise ValueError("weights must not be empty")
     if any(w < 0 or w > 100 for w in weights):
         raise ValueError("each weight must be in [0, 100]")
-    if sum(weights) > 100 + 1e-4:
+
+    total = sum(weights)
+    if total > 105.0:
         raise ValueError(
-            "weights sum exceeds 100 — check for denormalized adapter input"
+            f"weights sum to {total:.2f}, far above 100 — check adapter units"
         )
 
     sorted_weights = sorted(weights, reverse=True)
