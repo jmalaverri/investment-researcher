@@ -1,4 +1,5 @@
 from investment_researcher.domain.models import FundData
+from investment_researcher.errors import LLMUnavailable
 
 
 class FakeFundDataSource:
@@ -12,3 +13,18 @@ class FakeFundDataSource:
 
     def fetch(self, ticker: str) -> FundData:
         return self._funds[ticker]
+
+
+class FakeLLMClient:
+    """In-memory test double for LLMClient — no Ollama, no network."""
+
+    def __init__(self, response: str = "...", fail: bool = False) -> None:
+        self._response = response
+        self._fail = fail
+        self.calls: list[tuple[str, str]] = []
+
+    def complete(self, system: str, user: str) -> str:
+        self.calls.append((system, user))
+        if self._fail:
+            raise LLMUnavailable("FakeLLMClient configured to fail")
+        return self._response
