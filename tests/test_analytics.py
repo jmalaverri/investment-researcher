@@ -1,6 +1,7 @@
 import pytest
 
 from investment_researcher.analytics import (
+    classify_concentration,
     classify_expense_ratio,
     compute_concentration,
 )
@@ -55,3 +56,28 @@ class TestClassifyExpenseRatio:
     def test_negative_raises(self):
         with pytest.raises(ValueError):
             classify_expense_ratio(-0.01)
+
+
+# ---------------------------------------------------------------------------
+# classify_concentration
+# ---------------------------------------------------------------------------
+
+
+class TestClassifyConcentration:
+    def test_low_real_voo_value(self):
+        assert classify_concentration(193.4) == "low"
+
+    def test_low_just_below_boundary(self):
+        assert classify_concentration(1499.0) == "low"
+
+    def test_moderate_lower_boundary_inclusive(self):
+        assert classify_concentration(1500.0) == "moderate"
+
+    def test_moderate_upper_boundary_inclusive(self):
+        assert classify_concentration(2500.0) == "moderate"
+
+    def test_high_just_above_boundary(self):
+        assert classify_concentration(2500.1) == "high"
+
+    def test_high_four_holding_fixture(self):
+        assert classify_concentration(3000.0) == "high"

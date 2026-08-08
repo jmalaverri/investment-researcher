@@ -49,3 +49,17 @@ def classify_expense_ratio(
     if expense_ratio_pct <= 0.50:
         return "moderate"
     return "high"
+
+
+def classify_concentration(hhi: float) -> Literal["low", "moderate", "high"]:
+    """Classify a Herfindahl-Hirschman Index value (0–10,000 scale).
+
+    low:      < 1500
+    moderate: 1500 – 2500 (inclusive)
+    high:     > 2500
+    """
+    if hhi < 1500:
+        return "low"
+    if hhi <= 2500:
+        return "moderate"
+    return "high"
