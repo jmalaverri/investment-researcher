@@ -11,3 +11,5 @@ wheels/
 
 # local secrets
 .env
+
+*.lock
