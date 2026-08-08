@@ -19,3 +19,14 @@ class FundDataSource(Protocol):
         See investment_researcher.errors.
         """
         ...
+
+
+class LLMClient(Protocol):
+    """Port for text generation. Synchronous, consistent with FundDataSource."""
+
+    def complete(self, system: str, user: str) -> str:
+        """Return generated text.
+
+        Raises LLMUnavailable on timeout, connection failure, or provider error.
+        """
+        ...

@@ -5,7 +5,6 @@ from investment_researcher.analytics import (
     compute_concentration,
 )
 
-
 # ---------------------------------------------------------------------------
 # compute_concentration
 # ---------------------------------------------------------------------------
