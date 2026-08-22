@@ -52,4 +52,6 @@ class OllamaClient:
         try:
             return body["message"]["content"]
         except (KeyError, TypeError) as exc:
-            raise LLMUnavailable(f"unexpected response shape from Ollama: {body}") from exc
+            raise LLMUnavailable(
+                f"unexpected response shape from Ollama: {body}"
+            ) from exc

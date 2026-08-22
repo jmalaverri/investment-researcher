@@ -5,6 +5,7 @@ import sys
 from dotenv import load_dotenv
 
 from investment_researcher.adapters.alphavantage import AlphaVantageFundData
+from investment_researcher.adapters.ollama import OllamaClient
 from investment_researcher.errors import FundDataUnavailable, TickerNotFound
 from investment_researcher.fundamentalist import Fundamentalist
 
@@ -22,6 +23,11 @@ def _print_report(report) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Fundamentalist v0 fund analyzer")
     parser.add_argument("ticker", help="Fund ticker symbol, e.g. VOO")
+    parser.add_argument(
+        "--interpret",
+        action="store_true",
+        help="Generate an LLM interpretation via Ollama",
+    )
     args = parser.parse_args()
 
     load_dotenv()
@@ -30,7 +36,11 @@ def main() -> None:
         print("FUND_API_KEY is not set. Add it to your .env file and try again.")
         sys.exit(1)
 
-    fundamentalist = Fundamentalist(AlphaVantageFundData.from_env())
+    llm = OllamaClient() if args.interpret else None
+    fundamentalist = Fundamentalist(AlphaVantageFundData.from_env(), llm=llm)
+
+    if args.interpret:
+        print("Generating interpretation (this may take ~30s)...", file=sys.stderr)
 
     try:
         report = fundamentalist.analyze(args.ticker.upper())
@@ -42,6 +52,13 @@ def main() -> None:
         sys.exit(3)
 
     _print_report(report)
+
+    if report.interpretation is not None:
+        print()
+        print("Interpretation:")
+        print(report.interpretation)
+    elif args.interpret:
+        print("Interpretation unavailable (LLM error).", file=sys.stderr)
 
 
 if __name__ == "__main__":

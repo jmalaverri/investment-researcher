@@ -2,8 +2,8 @@ import json
 
 import httpx
 import pytest
-from investment_researcher.adapters.ollama import OllamaClient
 
+from investment_researcher.adapters.ollama import OllamaClient
 from investment_researcher.errors import LLMUnavailable
 
 
