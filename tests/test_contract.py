@@ -8,8 +8,9 @@ def test_fundamental_report_constructs():
         expense_ratio_pct=0.03,
         expense_ratio_flag="low",
         concentration=Concentration(
-            top_10_weight_pct=100.0, holdings_count=4, hhi=3000.0
+            top_10_weight_pct=100.0, holdings_count=4, hhi=3000.0, flag="high"
         ),
     )
     assert report.concentration.hhi == 3000.0
+    assert report.concentration.flag == "high"
     assert report.expense_ratio_flag == "low"

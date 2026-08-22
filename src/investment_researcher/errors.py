@@ -8,3 +8,7 @@ class TickerNotFound(FundDataError):
 
 class FundDataUnavailable(FundDataError):
     """Transient: network failure, rate limit, or provider error. Not the caller's fault."""
+
+
+class LLMUnavailable(Exception):
+    """LLM call failed: timeout, connection error, or provider error."""
