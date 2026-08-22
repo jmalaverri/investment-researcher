@@ -24,11 +24,13 @@ def compute_concentration(weights: list[float]) -> Concentration:
 
     sorted_weights = sorted(weights, reverse=True)
     top_10 = sorted_weights[:10]
+    hhi = sum(w * w for w in weights)
 
     return Concentration(
         holdings_count=len(weights),
         top_10_weight_pct=sum(top_10),
-        hhi=sum(w * w for w in weights),
+        hhi=hhi,
+        flag=classify_concentration(hhi),
     )
 
 

@@ -18,6 +18,7 @@ class TestComputeConcentration:
         assert result.holdings_count == 4
         assert result.top_10_weight_pct == pytest.approx(100.0)
         assert result.hhi == pytest.approx(3000.0)  # 1600+900+400+100
+        assert result.flag == "high"
 
     def test_fixture_b(self):
         # one 20 + ten 8s  → 11 holdings
@@ -26,12 +27,14 @@ class TestComputeConcentration:
         assert result.holdings_count == 11
         assert result.top_10_weight_pct == pytest.approx(92.0)  # 20 + 9*8
         assert result.hhi == pytest.approx(1040.0)  # 400 + 10*64
+        assert result.flag == "low"
 
     def test_edge_single_holding(self):
         result = compute_concentration([100.0])
         assert result.holdings_count == 1
         assert result.top_10_weight_pct == pytest.approx(100.0)
         assert result.hhi == pytest.approx(10000.0)
+        assert result.flag == "high"
 
     def test_edge_empty_raises(self):
         with pytest.raises(ValueError):

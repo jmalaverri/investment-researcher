@@ -36,6 +36,7 @@ class Concentration(BaseModel):
         le=10_000,
         description="Herfindahl-Hirschman Index on percent weights; 0–10,000 scale (>2500 ≈ highly concentrated).",
     )
+    flag: Literal["low", "moderate", "high"]
 
 
 class FundamentalReport(BaseModel):
